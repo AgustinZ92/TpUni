@@ -1,12 +1,41 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
+
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [FormsModule],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('parcial-angular');
+
+  http = inject(HttpClient);
+
+  personajes: any[] = [];
+  filtrados: any[] = [];
+
+  busqueda = '';
+
+  constructor() {
+    this.cargarPersonajes();
+  }
+
+  cargarPersonajes() {
+    this.http
+      .get<any>('https://rickandmortyapi.com/api/character')
+      .subscribe(data => {
+        this.personajes = data.results;
+        this.filtrados = data.results;
+      });
+  }
+
+  buscar() {
+    this.filtrados = this.personajes.filter(p =>
+      p.name.toLowerCase().includes(
+        this.busqueda.toLowerCase()
+      )
+    );
+  }
 }
